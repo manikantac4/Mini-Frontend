@@ -313,37 +313,21 @@ function TabBtn({
 // ============================================================
 
 export default function Sidebar({
-
   onDetect,
-
   loading,
-
   error,
-
   featureCount,
-
   bbox,
-
   setBbox,
-
   activeCity,
-
   setActiveCity,
-
+  radiusKm,
+  setRadiusKm,
   layers,
-
   toggleLayer,
-
   hasResult,
-
   onOpenReport,
-
-  selectedRadius,
-
-  setSelectedRadius,
-
 }) {
-
 
   // ==========================================================
   // PARAMETERS
