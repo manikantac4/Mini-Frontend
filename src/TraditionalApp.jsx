@@ -63,6 +63,8 @@ const [radiusKm,      setRadiusKm]      = useState(50)
 
     satellite: true,
 
+    fcc: false,
+
     ndwi: false,
 
     water_mask: false,

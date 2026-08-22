@@ -110,6 +110,13 @@ const LAYER_CONFIG = [
   },
 
   {
+    key: 'fcc',
+    label: 'False Color (NIR)',
+    desc: 'Vegetation contrast layer',
+    dot: '#f59e0b',
+  },
+
+  {
     key: 'satellite',
     label: 'Satellite (GEE)',
     desc: 'Sentinel-2 RGB',
@@ -595,6 +602,12 @@ export default function Sidebar({
               label: 'MNDWI',
               color:
                 'text-violet-400 bg-violet-950/50 border-violet-900/50'
+            },
+
+            {
+              label: 'AWEI',
+              color:
+                'text-amber-400 bg-amber-950/50 border-amber-900/50'
             },
 
             {

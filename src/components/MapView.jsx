@@ -325,6 +325,26 @@ export default function MapView({
 
 
         {/* ====================================================
+            FALSE COLOR COMPOSITE (FCC)
+
+            NIR-Red-Green visual analysis layer. Purely a display
+            aid — it does not feed the water classification, which
+            is computed server-side from the spectral indices.
+            ==================================================== */}
+
+        {tileUrls?.fcc && layers.fcc && (
+          <TileLayer
+            key={`gee-fcc-${bbox?.join('-')}`}
+            url={tileUrls.fcc}
+            maxZoom={18}
+            maxNativeZoom={18}
+            opacity={0.9}
+            zIndex={3}
+          />
+        )}
+
+
+        {/* ====================================================
             NDWI
             ==================================================== */}
 
@@ -335,7 +355,7 @@ export default function MapView({
             maxZoom={18}
             maxNativeZoom={18}
             opacity={0.8}
-            zIndex={3}
+            zIndex={4}
           />
         )}
 
@@ -351,7 +371,7 @@ export default function MapView({
             maxZoom={18}
             maxNativeZoom={18}
             opacity={0.7}
-            zIndex={4}
+            zIndex={5}
           />
         )}
 
