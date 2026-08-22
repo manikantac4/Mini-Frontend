@@ -1,10 +1,14 @@
 import { useState } from 'react'
+import TraditionalApp from './TraditionalApp'
+import AIApp from './AIApp'
 
-// In your real project, keep these two lines and delete the placeholder
-// components defined further below — they only exist here so this file
-// can preview standalone.
-// import TraditionalApp from './TraditionalApp'
-// import AIApp from './AIApp'
+// Vite-friendly image imports. Place the two files at:
+//   src/assets/background.jpg
+//   src/assets/mobilebackground.jpg
+// (adjust the relative path below if App.jsx lives somewhere else, e.g.
+// src/components/App.jsx would need '../assets/background.jpg')
+import backgroundImg from './assets/background.jpg'
+import mobileBackgroundImg from './assets/mobilebackgorund.jpeg'
 
 const FONT_STACK =
   "'Product Sans', 'Google Sans', 'Söhne', ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
@@ -26,12 +30,12 @@ export default function App() {
                       border-[3px] border-black
                       shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_30px_80px_-20px_rgba(0,0,0,0.9)]">
 
-        {/* Background photograph layer — swap the urls for your real assets */}
+        {/* Background photograph layer */}
         {/* Mobile (< sm breakpoint) */}
         <div
           className="absolute inset-0 bg-[#050b14] block sm:hidden"
           style={{
-            backgroundImage: "url('/assets/mobilebackground.jpeg')",
+            backgroundImage: `url(${mobileBackgroundImg})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
@@ -40,7 +44,7 @@ export default function App() {
         <div
           className="absolute inset-0 bg-[#050b14] hidden sm:block"
           style={{
-            backgroundImage: "url('/assets/background.jpeg')",
+            backgroundImage: `url(${backgroundImg})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
@@ -293,36 +297,6 @@ export default function App() {
           100% { top: 100%; opacity: 0; }
         }
       `}</style>
-    </div>
-  )
-}
-
-/* ────────────────────────────────────────────────────────────────
-   Placeholder components for standalone preview only.
-   Delete these and use your real `TraditionalApp` / `AIApp` imports
-   at the top of the file in your actual project.
-   ──────────────────────────────────────────────────────────────── */
-function TraditionalApp({ onBack }) {
-  return (
-    <div className="min-h-screen w-screen bg-[#050b14] text-white flex items-center
-                    justify-center flex-col gap-4" style={{ fontFamily: FONT_STACK }}>
-      <p className="text-sm tracking-widest uppercase text-cyan-400">Traditional Method</p>
-      <button onClick={onBack}
-        className="px-4 py-2 rounded-lg border border-slate-700 text-sm hover:bg-slate-800">
-        ← Back
-      </button>
-    </div>
-  )
-}
-function AIApp({ onBack }) {
-  return (
-    <div className="min-h-screen w-screen bg-[#050b14] text-white flex items-center
-                    justify-center flex-col gap-4" style={{ fontFamily: FONT_STACK }}>
-      <p className="text-sm tracking-widest uppercase text-violet-400">AI Method</p>
-      <button onClick={onBack}
-        className="px-4 py-2 rounded-lg border border-slate-700 text-sm hover:bg-slate-800">
-        ← Back
-      </button>
     </div>
   )
 }
