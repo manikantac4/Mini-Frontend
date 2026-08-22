@@ -41,8 +41,6 @@ const [radiusKm,      setRadiusKm]      = useState(50)
   // RADIUS
   // ============================================================
 
-  const [selectedRadius, setSelectedRadius] = useState(10)
-
 
   // ============================================================
   // UI STATE
@@ -151,17 +149,10 @@ const [radiusKm,      setRadiusKm]      = useState(50)
           already sends additional values.
         */
 
-        const requestBody = {
-
-          ...params,
-
-          // Use the selected radius unless Sidebar
-          // explicitly provides another radius.
-          radius_km:
-            params?.radius_km ??
-            selectedRadius,
-
-        }
+       const requestBody = {
+  ...params,
+  radius_km: radiusKm,
+}
 
 
         // ======================================================
@@ -178,10 +169,7 @@ const [radiusKm,      setRadiusKm]      = useState(50)
                 'application/json',
             },
 
-           body: JSON.stringify({
-  ...params,
-  radius_km: radiusKm,
-}),
+           body: JSON.stringify(requestBody),
           }
         )
 
@@ -250,18 +238,7 @@ const [radiusKm,      setRadiusKm]      = useState(50)
         // UPDATE RADIUS
         // ======================================================
 
-        if (
-          data.radius_km !== undefined &&
-          data.radius_km !== null
-        ) {
-
-          setSelectedRadius(
-            Number(
-              data.radius_km
-            )
-          )
-
-        }
+        
 
 
         // ======================================================
@@ -279,7 +256,7 @@ const [radiusKm,      setRadiusKm]      = useState(50)
         }))
 
 
-        // ======================================================
+        // =================================aaaa=====================
         // OPEN REPORT
         // ======================================================
 
@@ -313,7 +290,7 @@ const [radiusKm,      setRadiusKm]      = useState(50)
       }
 
     },
-    [selectedRadius]
+    [radiusKm]
   )
 
 
@@ -402,49 +379,23 @@ const [radiusKm,      setRadiusKm]      = useState(50)
           ====================================================== */}
 
       <Sidebar
-
-        onDetect={detectWater}
-
-        loading={loading}
-
-        error={error}
-
-        featureCount={featureCount}
-
-        bbox={bbox}
-
-        setBbox={setBbox}
-
-        activeCity={activeCity}
-
-        setActiveCity={setActiveCity}
-
-        layers={layers}
-
-        toggleLayer={toggleLayer}
-
-        hasResult={!!tileUrls}
-          radiusKm={radiusKm}
+  onDetect={detectWater}
+  loading={loading}
+  error={error}
+  featureCount={featureCount}
+  bbox={bbox}
+  setBbox={setBbox}
+  activeCity={activeCity}
+  setActiveCity={setActiveCity}
+  layers={layers}
+  toggleLayer={toggleLayer}
+  hasResult={!!tileUrls}
+  radiusKm={radiusKm}
   setRadiusKm={setRadiusKm}
+  onOpenReport={() => setReportOpen(true)}
+/>
 
-        onOpenReport={() =>
-          setReportOpen(true)
-          
-        }
-
-        // ------------------------------------------------------
-        // Radius props
-        // ------------------------------------------------------
-
-        selectedRadius={
-          selectedRadius
-        }
-
-        setSelectedRadius={
-          setSelectedRadius
-        }
-
-      />
+       
 
 
       {/* ======================================================

@@ -386,7 +386,7 @@ export default function Sidebar({
         city.lon,
 
       radius_km:
-        selectedRadius,
+        radiusKm,
 
       threshold,
 
@@ -425,7 +425,7 @@ export default function Sidebar({
         city.lon,
 
       radius_km:
-        selectedRadius,
+        radiusKm,
 
       threshold,
 
@@ -818,7 +818,7 @@ export default function Sidebar({
                     border-cyan-900/40
                   "
                 >
-                  {selectedRadius} km
+                  {radiusKm} km
                 </span>
 
               </div>
@@ -1252,7 +1252,7 @@ export default function Sidebar({
                     border-cyan-900/40
                   "
                 >
-                  {selectedRadius} km
+                  {radiusKm} km
                 </span>
 
               </div>
@@ -1266,13 +1266,13 @@ export default function Sidebar({
                 "
               >
 
-                {[5, 10, 20, 30].map(
+                {RADIUS_OPTIONS.map(
                   radius => (
 
                     <button
                       key={radius}
                       onClick={() =>
-                        setSelectedRadius(
+                        setRadiusKm(
                           radius
                         )
                       }
@@ -1286,7 +1286,7 @@ export default function Sidebar({
                         border
 
                         ${
-                          selectedRadius === radius
+                          radiusKm === radius
                             ? 'bg-cyan-500/20 text-cyan-300 border-cyan-700/60'
                             : 'bg-slate-800/40 text-slate-500 border-slate-700/40 hover:text-slate-300'
                         }
