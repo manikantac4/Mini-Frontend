@@ -4,14 +4,9 @@ import {
   TileLayer,
   GeoJSON,
   Circle,
-  ScaleControl,
-  useMap,
+  useMap
 } from 'react-leaflet'
 
-
-// ============================================================
-// FIT MAP TO DETECTION AREA
-// ============================================================
 
 function FitBounds({ bbox }) {
 
@@ -19,44 +14,21 @@ function FitBounds({ bbox }) {
 
   useEffect(() => {
 
-    if (
-      !bbox ||
-      !Array.isArray(bbox) ||
-      bbox.length !== 4
-    ) {
-      return
-    }
-
-    const [
-      west,
-      south,
-      east,
-      north
-    ] = bbox
-
-    // Small delay allows Leaflet to finish rendering
-    // before fitting the map.
-    setTimeout(() => {
+    if (bbox) {
 
       map.fitBounds(
         [
-          [south, west],
-          [north, east]
+          [bbox[1], bbox[0]],
+          [bbox[3], bbox[2]]
         ],
         {
-          paddingTopLeft: [50, 50],
-          paddingBottomRight: [50, 50],
-
-          // Prevent the map from zooming ridiculously close
-          maxZoom: 14,
-
+          padding: [40, 40],
           animate: true,
-
-          duration: 1.2,
+          duration: 1
         }
       )
 
-    }, 100)
+    }
 
   }, [bbox, map])
 
@@ -67,11 +39,16 @@ function FitBounds({ bbox }) {
 // ============================================================
 // SCAN RADIUS CIRCLE
 // ============================================================
+//
+// This uses the returned bbox to find the center of the
+// detection area and draws the selected radius around it.
+//
+// IMPORTANT:
+// This is only a visual circle.
+// The actual detection radius is handled by the backend/GEE.
+// ============================================================
 
-function ScanRadiusCircle({
-  bbox,
-  radiusKm
-}) {
+function ScanCircle({ bbox, radiusKm }) {
 
   if (
     !bbox ||
@@ -82,18 +59,14 @@ function ScanRadiusCircle({
     return null
   }
 
-  const [
-    west,
-    south,
-    east,
-    north
-  ] = bbox
+  const west = bbox[0]
+  const south = bbox[1]
+  const east = bbox[2]
+  const north = bbox[3]
 
-  const centerLat =
-    (south + north) / 2
-
-  const centerLon =
-    (west + east) / 2
+  // Center of the returned bounding box
+  const centerLat = (south + north) / 2
+  const centerLon = (west + east) / 2
 
   return (
 
@@ -112,15 +85,15 @@ function ScanRadiusCircle({
 
         color: '#22d3ee',
 
-        weight: 1.5,
+        weight: 2,
 
         opacity: 0.75,
 
         fillColor: '#22d3ee',
 
-        fillOpacity: 0.025,
+        fillOpacity: 0.03,
 
-        dashArray: '7 8',
+        dashArray: '7 7'
 
       }}
 
@@ -129,10 +102,6 @@ function ScanRadiusCircle({
   )
 }
 
-
-// ============================================================
-// MAIN MAP VIEW
-// ============================================================
 
 export default function MapView({
 
@@ -148,7 +117,7 @@ export default function MapView({
 
   layers,
 
-  radiusKm,
+  radiusKm
 
 }) {
 
@@ -157,92 +126,72 @@ export default function MapView({
     <div
       style={{
         width: '100%',
-        height: '100%',
+        height: '100vh'
       }}
-      className="
-        relative
-        bg-[#07101a]
-      "
+      className="relative"
     >
 
+
       {/* ======================================================
-          LOADING OVERLAY
+          Loading overlay
           ====================================================== */}
 
       {loading && (
 
         <div
           className="
-            absolute
-            inset-0
-            z-[1000]
+            absolute inset-0 z-[1000]
             pointer-events-none
-
-            bg-[#080c14]/65
-            backdrop-blur-[1.5px]
-
-            flex
-            flex-col
+            bg-[#080c14]/70
+            backdrop-blur-[2px]
+            flex flex-col
             items-center
             justify-center
             gap-4
           "
         >
 
-          <div
-            className="
-              relative
-              w-14
-              h-14
-            "
-          >
+          <div className="relative w-14 h-14">
 
             <div
               className="
-                absolute
-                w-14
-                h-14
+                w-14 h-14
                 rounded-full
                 border-[3px]
                 border-slate-700
+                absolute
               "
             />
 
             <div
               className="
-                absolute
-                w-14
-                h-14
+                w-14 h-14
                 rounded-full
-
                 border-[3px]
                 border-t-cyan-400
                 border-r-transparent
                 border-b-transparent
                 border-l-transparent
-
                 animate-spin
+                absolute
               "
             />
 
             <div
               className="
-                absolute
-                w-14
-                h-14
+                w-14 h-14
                 rounded-full
-
                 border-[3px]
                 border-b-violet-400
                 border-t-transparent
                 border-r-transparent
                 border-l-transparent
-
                 animate-spin
+                absolute
               "
               style={{
                 animationDuration: '1.5s',
-                animationDirection: 'reverse',
+                animationDirection: 'reverse'
               }}
             />
 
@@ -266,7 +215,7 @@ export default function MapView({
               className="
                 text-slate-400
                 text-xs
-                max-w-[260px]
+                max-w-[240px]
                 min-h-[16px]
               "
             >
@@ -283,15 +232,14 @@ export default function MapView({
               <div
                 key={i}
                 className="
-                  w-1.5
-                  h-1.5
+                  w-1.5 h-1.5
                   rounded-full
                   bg-cyan-400
                   animate-bounce
                 "
                 style={{
                   animationDelay:
-                    `${i * 0.15}s`,
+                    `${i * 0.15}s`
                 }}
               />
 
@@ -305,7 +253,7 @@ export default function MapView({
 
 
       {/* ======================================================
-          EMPTY STATE
+          Empty state
           ====================================================== */}
 
       {!geojson && !loading && (
@@ -316,34 +264,24 @@ export default function MapView({
             bottom-8
             left-1/2
             -translate-x-1/2
-
             z-[999]
-
             pointer-events-none
           "
         >
 
           <div
             className="
-              px-4
-              py-2
-
+              px-4 py-2
               rounded-full
-
               text-xs
               text-slate-400
-
-              bg-slate-900/85
-
+              bg-slate-900/80
               border
               border-slate-700/60
-
               backdrop-blur-sm
-
-              shadow-lg
             "
           >
-            Select a city → choose radius → Run Detection
+            Select a city → click Detect Water
           </div>
 
         </div>
@@ -352,7 +290,7 @@ export default function MapView({
 
 
       {/* ======================================================
-          RESULT INFORMATION
+          Result badge
           ====================================================== */}
 
       {geojson && !loading && (
@@ -362,66 +300,25 @@ export default function MapView({
             absolute
             top-4
             right-4
-
             z-[999]
-
             pointer-events-none
           "
         >
 
           <div
             className="
-              px-3
-              py-2
-
+              px-3 py-2
               rounded-xl
-
               text-xs
               font-mono
-
-              bg-slate-950/90
-
+              bg-slate-900/90
               border
               border-emerald-800/50
-
-              backdrop-blur-md
-
+              backdrop-blur-sm
               text-emerald-400
-
-              shadow-lg
             "
           >
-
-            <div className="flex items-center gap-2">
-
-              <span>
-                ✓
-              </span>
-
-              <span>
-                {geojson?.features?.length || 0}
-                {' '}
-                water bodies
-              </span>
-
-            </div>
-
-
-            {radiusKm && (
-
-              <div
-                className="
-                  text-[10px]
-                  text-slate-500
-                  mt-1
-                  text-right
-                "
-              >
-                Scan radius: {radiusKm} km
-              </div>
-
-            )}
-
+            ✓ {geojson?.features?.length} polygons
           </div>
 
         </div>
@@ -430,7 +327,7 @@ export default function MapView({
 
 
       {/* ======================================================
-          LEAFLET MAP
+          MAP
           ====================================================== */}
 
       <MapContainer
@@ -442,43 +339,20 @@ export default function MapView({
 
         zoom={11}
 
-        minZoom={5}
-
-        maxZoom={20}
+        style={{
+          width: '100%',
+          height: '100%'
+        }}
 
         zoomControl={true}
 
         scrollWheelZoom={true}
 
-        doubleClickZoom={true}
-
-        dragging={true}
-
-        touchZoom={true}
-
-        keyboard={true}
-
-        zoomSnap={0.5}
-
-        zoomDelta={0.5}
-
-        wheelDebounceTime={40}
-
-        wheelPxPerZoomLevel={90}
-
-        preferCanvas={true}
-
-        style={{
-          width: '100%',
-          height: '100%',
-          background: '#07101a',
-        }}
-
       >
 
 
         {/* ====================================================
-            HIGH-QUALITY BASE SATELLITE
+            ORIGINAL ESRI BASE MAP
             ==================================================== */}
 
         <TileLayer
@@ -490,23 +364,9 @@ export default function MapView({
             MapServer/tile/{z}/{y}/{x}
           "
 
-          attribution="
-            Tiles © Esri
-          "
+          attribution="Esri"
 
-          maxZoom={20}
-
-          maxNativeZoom={19}
-
-          tileSize={256}
-
-          detectRetina={true}
-
-          updateWhenZooming={false}
-
-          updateWhenIdle={true}
-
-          keepBuffer={4}
+          maxZoom={18}
 
           opacity={1}
 
@@ -514,7 +374,7 @@ export default function MapView({
 
 
         {/* ====================================================
-            SENTINEL-2 GEE SATELLITE
+            ORIGINAL GEE SATELLITE
             ==================================================== */}
 
         {tileUrls?.satellite &&
@@ -530,26 +390,9 @@ export default function MapView({
                 Google Earth Engine · Sentinel-2
               "
 
-              maxZoom={20}
+              maxZoom={18}
 
-              maxNativeZoom={18}
-
-              tileSize={256}
-
-              detectRetina={true}
-
-              updateWhenZooming={false}
-
-              updateWhenIdle={true}
-
-              keepBuffer={3}
-
-              /*
-                Keep Sentinel semi-transparent so the
-                sharper Esri imagery remains visible.
-              */
-
-              opacity={0.28}
+              opacity={1}
 
             />
 
@@ -557,7 +400,7 @@ export default function MapView({
 
 
         {/* ====================================================
-            NDWI
+            ORIGINAL NDWI
             ==================================================== */}
 
         {tileUrls?.ndwi &&
@@ -569,21 +412,9 @@ export default function MapView({
 
               url={tileUrls.ndwi}
 
-              maxZoom={20}
+              maxZoom={18}
 
-              maxNativeZoom={18}
-
-              tileSize={256}
-
-              detectRetina={true}
-
-              updateWhenZooming={false}
-
-              updateWhenIdle={true}
-
-              keepBuffer={3}
-
-              opacity={0.72}
+              opacity={0.8}
 
             />
 
@@ -591,7 +422,7 @@ export default function MapView({
 
 
         {/* ====================================================
-            WATER MASK
+            ORIGINAL WATER MASK
             ==================================================== */}
 
         {tileUrls?.water_mask &&
@@ -603,21 +434,9 @@ export default function MapView({
 
               url={tileUrls.water_mask}
 
-              maxZoom={20}
+              maxZoom={18}
 
-              maxNativeZoom={18}
-
-              tileSize={256}
-
-              detectRetina={true}
-
-              updateWhenZooming={false}
-
-              updateWhenIdle={true}
-
-              keepBuffer={3}
-
-              opacity={0.55}
+              opacity={0.7}
 
             />
 
@@ -625,14 +444,14 @@ export default function MapView({
 
 
         {/* ====================================================
-            SCAN RADIUS
+            NEW: SCAN RADIUS CIRCLE
             ==================================================== */}
 
         {bbox &&
           radiusKm &&
           !loading && (
 
-            <ScanRadiusCircle
+            <ScanCircle
 
               bbox={bbox}
 
@@ -644,7 +463,7 @@ export default function MapView({
 
 
         {/* ====================================================
-            WATER BOUNDARIES
+            ORIGINAL WATER BOUNDARIES
             ==================================================== */}
 
         {geojson &&
@@ -660,26 +479,15 @@ export default function MapView({
 
               style={() => ({
 
-                color:
-                  '#ff1744',
+                color: '#f43f5e',
 
-                weight:
-                  2.2,
+                weight: 1.8,
 
-                opacity:
-                  1,
+                opacity: 0.95,
 
-                fillColor:
-                  '#00bfff',
+                fillColor: '#f43f5e',
 
-                fillOpacity:
-                  0.07,
-
-                lineCap:
-                  'round',
-
-                lineJoin:
-                  'round',
+                fillOpacity: 0.1,
 
               })}
 
@@ -689,8 +497,10 @@ export default function MapView({
                 layer
               ) => {
 
-                const properties =
-                  feature.properties || {}
+                const area =
+                  feature.properties?.area_m2
+
+                if (!area) return
 
 
                 // ==================================================
@@ -698,11 +508,13 @@ export default function MapView({
                 // ==================================================
 
                 const waterBodyId =
-                  properties.water_body_id
+                  feature.properties
+                    ?.water_body_id
 
 
                 const waterBodyName =
-                  properties.water_body_name ||
+                  feature.properties
+                    ?.water_body_name ||
                   (
                     waterBodyId
                       ? `Water Body ${waterBodyId}`
@@ -711,85 +523,31 @@ export default function MapView({
 
 
                 // ==================================================
-                // AREA
+                // ORIGINAL POPUP
                 // ==================================================
 
-                const area =
-                  Number(
-                    properties.area_m2 || 0
-                  )
+                layer.bindPopup(`
 
-
-                const areaKm2 =
-                  Number(
-                    properties.area_km2 ??
-                    (
-                      area / 1000000
-                    )
-                  )
-
-
-                // ==================================================
-                // POPUP
-                // ==================================================
-
-                layer.bindPopup(
-
-                  `
                   <div
                     style="
-                      font-family:
-                        Arial,
-                        sans-serif;
-
+                      font-family:'Courier New',monospace;
+                      font-size:11px;
                       color:#e2e8f0;
-
                       background:#0f172a;
-
-                      padding:13px 15px;
-
-                      border-radius:11px;
-
-                      border:
-                        1px solid
-                        #334155;
-
-                      min-width:205px;
-
-                      box-shadow:
-                        0 10px 35px
-                        rgba(0,0,0,.5);
+                      padding:10px 12px;
+                      border-radius:8px;
+                      border:1px solid #334155;
+                      min-width:160px
                     "
                   >
 
                     <div
                       style="
-                        color:#64748b;
-
-                        font-size:9px;
-
-                        text-transform:
-                          uppercase;
-
-                        letter-spacing:
-                          .13em;
-
-                        margin-bottom:5px;
-                      "
-                    >
-                      Detected Water Body
-                    </div>
-
-
-                    <div
-                      style="
-                        color:#f8fafc;
-
-                        font-size:15px;
-
-                        font-weight:700;
-
-                        margin-bottom:11px;
+                        color:#94a3b8;
+                        font-size:10px;
+                        text-transform:uppercase;
+                        letter-spacing:.08em;
+                        margin-bottom:6px
                       "
                     >
                       ${waterBodyName}
@@ -798,126 +556,35 @@ export default function MapView({
 
                     <div
                       style="
-                        height:1px;
-
-                        background:#1e293b;
-
-                        margin-bottom:5px;
-                      "
-                    ></div>
-
-
-                    <div
-                      style="
-                        display:flex;
-
-                        justify-content:
-                          space-between;
-
-                        align-items:center;
-
-                        padding:6px 0;
+                        color:#f1f5f9;
+                        font-size:13px;
+                        font-weight:700;
+                        margin-bottom:4px
                       "
                     >
-
-                      <span
-                        style="
-                          color:#64748b;
-                          font-size:10px;
-                        "
-                      >
-                        Water Body ID
-                      </span>
-
-                      <span
-                        style="
-                          color:#22d3ee;
-                          font-size:11px;
-                          font-weight:700;
-                        "
-                      >
-                        #${waterBodyId ?? '-'}
-                      </span>
-
+                      ${(area / 1e6).toFixed(4)} km²
                     </div>
 
 
                     <div
                       style="
-                        display:flex;
-
-                        justify-content:
-                          space-between;
-
-                        align-items:center;
-
-                        padding:6px 0;
-
-                        border-top:
-                          1px solid
-                          #1e293b;
+                        color:#64748b
                       "
                     >
-
-                      <span
-                        style="
-                          color:#64748b;
-                          font-size:10px;
-                        "
-                      >
-                        Area
-                      </span>
-
-                      <span
-                        style="
-                          color:#f1f5f9;
-                          font-size:11px;
-                          font-weight:700;
-                        "
-                      >
-                        ${areaKm2.toFixed(4)}
-                        km²
-                      </span>
-
-                    </div>
-
-
-                    <div
-                      style="
-                        color:#64748b;
-
-                        font-size:9px;
-
-                        text-align:right;
-
-                        margin-top:2px;
-                      "
-                    >
-                      ${Math.round(
-                        area
-                      ).toLocaleString()} m²
+                      ${Math.round(area)
+                        .toLocaleString()} m²
                     </div>
 
                   </div>
-                  `,
 
-                  {
-                    className:
-                      'dark-popup',
-
-                    maxWidth:
-                      280,
-
-                    closeButton:
-                      true,
-
-                  }
-
-                )
+                `, {
+                  className:
+                    'dark-popup'
+                })
 
 
                 // ==================================================
-                // HOVER EFFECT
+                // HOVER
                 // ==================================================
 
                 layer.on({
@@ -926,18 +593,13 @@ export default function MapView({
 
                     e.target.setStyle({
 
-                      fillOpacity:
-                        0.24,
+                      fillOpacity: 0.3,
 
-                      weight:
-                        3,
+                      weight: 2.5,
 
-                      color:
-                        '#ff4d6d',
+                      color: '#fb7185'
 
                     })
-
-                    e.target.bringToFront()
 
                   },
 
@@ -946,23 +608,13 @@ export default function MapView({
 
                     e.target.setStyle({
 
-                      fillOpacity:
-                        0.07,
+                      fillOpacity: 0.1,
 
-                      weight:
-                        2.2,
+                      weight: 1.8,
 
-                      color:
-                        '#ff1744',
+                      color: '#f43f5e'
 
                     })
-
-                  },
-
-
-                  click: e => {
-
-                    e.target.bringToFront()
 
                   }
 
@@ -976,24 +628,7 @@ export default function MapView({
 
 
         {/* ====================================================
-            SCALE
-            ==================================================== */}
-
-        <ScaleControl
-
-          position="bottomleft"
-
-          imperial={false}
-
-          metric={true}
-
-          maxWidth={120}
-
-        />
-
-
-        {/* ====================================================
-            FIT DETECTION AREA
+            FIT ORIGINAL BBOX
             ==================================================== */}
 
         <FitBounds
@@ -1005,7 +640,7 @@ export default function MapView({
 
 
       {/* ======================================================
-          MAP STYLES
+          ORIGINAL STYLES
           ====================================================== */}
 
       <style>{`
@@ -1020,14 +655,14 @@ export default function MapView({
             none !important;
 
           box-shadow:
-            none !important;
+            0 8px 32px
+            rgba(0,0,0,.5) !important;
 
           padding:
             0 !important;
 
           border-radius:
-            11px !important;
-
+            10px !important;
         }
 
 
@@ -1036,7 +671,6 @@ export default function MapView({
 
           margin:
             0 !important;
-
         }
 
 
@@ -1044,182 +678,46 @@ export default function MapView({
           .leaflet-popup-tip-container {
 
           display:
-            none !important;
-
+            none;
         }
 
-
-        /* ----------------------------------------------
-           Zoom controls
-        ---------------------------------------------- */
 
         .leaflet-control-zoom {
 
           border:
             1px solid
-            rgba(51,65,85,.85)
+            rgba(51,65,85,.8)
             !important;
 
           border-radius:
-            11px !important;
+            10px !important;
 
           overflow:
             hidden !important;
-
-          box-shadow:
-            0 8px 25px
-            rgba(0,0,0,.35)
-            !important;
-
         }
 
 
         .leaflet-control-zoom a {
 
           background:
-            rgba(9,15,27,.94)
+            rgba(15,23,42,.9)
             !important;
 
           color:
             #94a3b8
             !important;
-
-          width:
-            32px !important;
-
-          height:
-            32px !important;
-
-          line-height:
-            32px !important;
-
-          border:
-            none !important;
-
-          transition:
-            all .15s ease;
-
         }
 
 
         .leaflet-control-zoom a:hover {
 
           background:
-            rgba(30,41,59,.98)
+            rgba(30,41,59,.95)
             !important;
 
           color:
-            #22d3ee
+            #e2e8f0
             !important;
-
-        }
-
-
-        /* ----------------------------------------------
-           Scale control
-        ---------------------------------------------- */
-
-        .leaflet-control-scale {
-
-          background:
-            rgba(9,15,27,.85)
-            !important;
-
-          border:
-            1px solid
-            rgba(51,65,85,.75)
-            !important;
-
-          color:
-            #94a3b8
-            !important;
-
-          padding:
-            2px 5px !important;
-
-          border-radius:
-            5px !important;
-
-          font-size:
-            9px !important;
-
-          backdrop-filter:
-            blur(6px);
-
-        }
-
-
-        .leaflet-control-scale-line {
-
-          border:
-            1px solid
-            #94a3b8 !important;
-
-          border-top:
-            none !important;
-
-          color:
-            #cbd5e1 !important;
-
-          background:
-            transparent !important;
-
-        }
-
-
-        /* ----------------------------------------------
-           Better map rendering
-        ---------------------------------------------- */
-
-        .leaflet-container {
-
-          background:
-            #07101a !important;
-
-          font-family:
-            Arial,
-            sans-serif;
-
-        }
-
-
-        .leaflet-tile {
-
-          image-rendering:
-            auto;
-
-        }
-
-
-        /* ----------------------------------------------
-           Attribution
-        ---------------------------------------------- */
-
-        .leaflet-control-attribution {
-
-          background:
-            rgba(9,15,27,.75)
-            !important;
-
-          color:
-            #64748b
-            !important;
-
-          font-size:
-            8px !important;
-
-          backdrop-filter:
-            blur(4px);
-
-        }
-
-
-        .leaflet-control-attribution a {
-
-          color:
-            #94a3b8
-            !important;
-
         }
 
       `}</style>

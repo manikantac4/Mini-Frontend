@@ -8,7 +8,7 @@ import AIApp from './AIApp'
 // (adjust the relative path below if App.jsx lives somewhere else, e.g.
 // src/components/App.jsx would need '../assets/background.jpg')
 import backgroundImg from './assets/background.jpg'
-import mobileBackgroundImg from './assets/mobilebackgorund.jpeg'
+import mobileBackgroundImg from './assets/mobilebackground.jpg'
 
 const FONT_STACK =
   "'Product Sans', 'Google Sans', 'Söhne', ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
@@ -30,62 +30,18 @@ export default function App() {
                       border-[3px] border-black
                       shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_30px_80px_-20px_rgba(0,0,0,0.9)]">
 
-        {/* Background photograph layer */}
-        {/* Mobile (< sm breakpoint) */}
-        <div
-          className="absolute inset-0 bg-[#050b14] block sm:hidden"
-          style={{
-            backgroundImage: `url(${mobileBackgroundImg})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
+        {/* Background photograph — mobile */}
+        <img
+          src={mobileBackgroundImg}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover block sm:hidden"
         />
-        {/* Tablet / desktop (>= sm breakpoint) */}
-        <div
-          className="absolute inset-0 bg-[#050b14] hidden sm:block"
-          style={{
-            backgroundImage: `url(${backgroundImg})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
+        {/* Background photograph — tablet / desktop */}
+        <img
+          src={backgroundImg}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover hidden sm:block"
         />
-        {/* Legibility scrim over the photo */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#050b14]/96 via-[#060c16]/93 to-[#050b14]/97" />
-        <div className="absolute inset-0 bg-gradient-to-tr from-[#050b14]/40 via-transparent to-[#050b14]/40" />
-
-        {/* Topographic contour texture — signature motif (elevation/water-line data) */}
-        <svg className="absolute inset-0 w-full h-full opacity-[0.05]" preserveAspectRatio="none">
-          <defs>
-            <pattern id="contours" width="120" height="120" patternUnits="userSpaceOnUse">
-              <path d="M0 60 Q30 20 60 60 T120 60" fill="none" stroke="#22d3ee" strokeWidth="0.6"/>
-              <path d="M0 90 Q30 50 60 90 T120 90" fill="none" stroke="#22d3ee" strokeWidth="0.6"/>
-              <path d="M0 30 Q30 -10 60 30 T120 30" fill="none" stroke="#22d3ee" strokeWidth="0.6"/>
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#contours)"/>
-        </svg>
-
-        {/* Fine grid */}
-        <svg className="absolute inset-0 w-full h-full opacity-[0.035]">
-          <defs>
-            <pattern id="grid" width="44" height="44" patternUnits="userSpaceOnUse">
-              <path d="M 44 0 L 0 0 0 44" fill="none" stroke="#94a3b8" strokeWidth="0.5"/>
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#grid)"/>
-        </svg>
-
-        {/* Ambient glows */}
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[600px]
-                        rounded-full opacity-[0.08] pointer-events-none"
-             style={{ background: 'radial-gradient(circle, #06b6d4 0%, transparent 70%)' }}/>
-        <div className="absolute bottom-0 right-0 w-[420px] h-[320px]
-                        rounded-full opacity-[0.06] pointer-events-none"
-             style={{ background: 'radial-gradient(circle, #7c3aed 0%, transparent 70%)' }}/>
-
-        {/* Scanning sweep — signature animation, evokes a satellite imaging pass */}
-        <div className="absolute inset-x-0 h-32 pointer-events-none animate-[scan_9s_linear_infinite]"
-             style={{ background: 'linear-gradient(to bottom, transparent, rgba(34,211,238,0.05), transparent)' }}/>
 
         {/* ── HUD corner readouts ── */}
         <div className="hidden sm:flex absolute top-5 left-6 items-center gap-2 text-[9px]
@@ -288,15 +244,6 @@ export default function App() {
           </p>
         </div>
       </div>
-
-      <style>{`
-        @keyframes scan {
-          0%   { top: -8rem; opacity: 0; }
-          10%  { opacity: 1; }
-          90%  { opacity: 1; }
-          100% { top: 100%; opacity: 0; }
-        }
-      `}</style>
     </div>
   )
 }
