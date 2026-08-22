@@ -4,32 +4,31 @@ import {
   TileLayer,
   GeoJSON,
   Circle,
-  useMap
+  useMap,
 } from 'react-leaflet'
 
 
-function FitBounds({ bbox }) {
+// ============================================================
+// FIT MAP TO SELECTED BBOX
+// ============================================================
 
+function FitBounds({ bbox }) {
   const map = useMap()
 
   useEffect(() => {
+    if (!bbox || !Array.isArray(bbox) || bbox.length !== 4) return
 
-    if (bbox) {
-
-      map.fitBounds(
-        [
-          [bbox[1], bbox[0]],
-          [bbox[3], bbox[2]]
-        ],
-        {
-          padding: [40, 40],
-          animate: true,
-          duration: 1
-        }
-      )
-
-    }
-
+    map.fitBounds(
+      [
+        [bbox[1], bbox[0]],
+        [bbox[3], bbox[2]],
+      ],
+      {
+        padding: [40, 40],
+        animate: true,
+        duration: 1,
+      }
+    )
   }, [bbox, map])
 
   return null
@@ -39,14 +38,6 @@ function FitBounds({ bbox }) {
 // ============================================================
 // SCAN RADIUS CIRCLE
 // ============================================================
-//
-// This uses the returned bbox to find the center of the
-// detection area and draws the selected radius around it.
-//
-// IMPORTANT:
-// This is only a visual circle.
-// The actual detection radius is handled by the backend/GEE.
-// ============================================================
 
 function ScanCircle({ bbox, radiusKm }) {
 
@@ -54,90 +45,65 @@ function ScanCircle({ bbox, radiusKm }) {
     !bbox ||
     !Array.isArray(bbox) ||
     bbox.length !== 4 ||
-    !radiusKm
+    !radiusKm ||
+    Number(radiusKm) <= 0
   ) {
     return null
   }
 
-  const west = bbox[0]
-  const south = bbox[1]
-  const east = bbox[2]
-  const north = bbox[3]
+  const west = Number(bbox[0])
+  const south = Number(bbox[1])
+  const east = Number(bbox[2])
+  const north = Number(bbox[3])
 
-  // Center of the returned bounding box
   const centerLat = (south + north) / 2
   const centerLon = (west + east) / 2
 
   return (
-
     <Circle
-
-      center={[
-        centerLat,
-        centerLon
-      ]}
-
-      radius={
-        Number(radiusKm) * 1000
-      }
-
+      center={[centerLat, centerLon]}
+      radius={Number(radiusKm) * 1000}
       pathOptions={{
-
         color: '#22d3ee',
-
         weight: 2,
-
-        opacity: 0.75,
-
+        opacity: 0.85,
         fillColor: '#22d3ee',
-
-        fillOpacity: 0.03,
-
-        dashArray: '7 7'
-
+        fillOpacity: 0.025,
+        dashArray: '7 7',
       }}
-
     />
-
   )
 }
 
 
+// ============================================================
+// MAIN MAP
+// ============================================================
+
 export default function MapView({
-
   geojson,
-
   tileUrls,
-
   bbox,
-
   loading,
-
   processingMsg,
-
   layers,
-
-  radiusKm
-
+  radiusKm,
 }) {
 
   return (
-
     <div
       style={{
         width: '100%',
-        height: '100vh'
+        height: '100vh',
       }}
       className="relative"
     >
 
-
       {/* ======================================================
-          Loading overlay
+          LOADING OVERLAY
           ====================================================== */}
 
       {loading && (
-
         <div
           className="
             absolute inset-0 z-[1000]
@@ -191,44 +157,27 @@ export default function MapView({
               "
               style={{
                 animationDuration: '1.5s',
-                animationDirection: 'reverse'
+                animationDirection: 'reverse',
               }}
             />
 
           </div>
 
-
           <div className="text-center">
 
-            <p
-              className="
-                text-white
-                text-sm
-                font-semibold
-                mb-1
-              "
-            >
+            <p className="text-white text-sm font-semibold mb-1">
               Analysing Satellite Data
             </p>
 
-            <p
-              className="
-                text-slate-400
-                text-xs
-                max-w-[240px]
-                min-h-[16px]
-              "
-            >
+            <p className="text-slate-400 text-xs max-w-[240px] min-h-[16px]">
               {processingMsg}
             </p>
 
           </div>
 
-
           <div className="flex gap-1.5">
 
-            {[0, 1, 2].map(i => (
-
+            {[0, 1, 2].map((i) => (
               <div
                 key={i}
                 className="
@@ -238,26 +187,22 @@ export default function MapView({
                   animate-bounce
                 "
                 style={{
-                  animationDelay:
-                    `${i * 0.15}s`
+                  animationDelay: `${i * 0.15}s`,
                 }}
               />
-
             ))}
 
           </div>
 
         </div>
-
       )}
 
 
       {/* ======================================================
-          Empty state
+          EMPTY STATE
           ====================================================== */}
 
       {!geojson && !loading && (
-
         <div
           className="
             absolute
@@ -285,16 +230,14 @@ export default function MapView({
           </div>
 
         </div>
-
       )}
 
 
       {/* ======================================================
-          Result badge
+          RESULT BADGE
           ====================================================== */}
 
       {geojson && !loading && (
-
         <div
           className="
             absolute
@@ -318,184 +261,139 @@ export default function MapView({
               text-emerald-400
             "
           >
-            ✓ {geojson?.features?.length} polygons
+            ✓ {geojson?.features?.length || 0} polygons
           </div>
 
         </div>
-
       )}
 
 
       {/* ======================================================
-          MAP
+          LEAFLET MAP
           ====================================================== */}
 
       <MapContainer
-
-        center={[
-          16.5062,
-          80.6480
-        ]}
-
+        center={[16.5062, 80.6480]}
         zoom={11}
-
         style={{
           width: '100%',
-          height: '100%'
+          height: '100%',
+          background: '#dbe3ea',
         }}
-
         zoomControl={true}
-
         scrollWheelZoom={true}
-
       >
 
 
         {/* ====================================================
-            ORIGINAL ESRI BASE MAP
+            IMPORTANT:
+            ORIGINAL ESRI SATELLITE BASE MAP
+
+            Keep this URL as ONE LINE.
+            This is what makes the entire map visible.
             ==================================================== */}
 
         <TileLayer
-
-          url="
-            https://server.arcgisonline.com/
-            ArcGIS/rest/services/
-            World_Imagery/
-            MapServer/tile/{z}/{y}/{x}
-          "
-
+          url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
           attribution="Esri"
-
           maxZoom={18}
-
+          maxNativeZoom={18}
           opacity={1}
-
+          zIndex={1}
         />
 
 
         {/* ====================================================
-            ORIGINAL GEE SATELLITE
+            GEE SENTINEL-2 SATELLITE
+
+            This sits ON TOP of Esri.
+            Outside the GEE ROI, the transparent area allows
+            the Esri base map underneath to remain visible.
             ==================================================== */}
 
-        {tileUrls?.satellite &&
-          layers.satellite && (
-
-            <TileLayer
-
-              key="gee-satellite"
-
-              url={tileUrls.satellite}
-
-              attribution="
-                Google Earth Engine · Sentinel-2
-              "
-
-              maxZoom={18}
-
-              opacity={1}
-
-            />
-
-          )}
+        {tileUrls?.satellite && layers.satellite && (
+          <TileLayer
+            key={`gee-satellite-${bbox?.join('-')}`}
+            url={tileUrls.satellite}
+            attribution="Google Earth Engine · Sentinel-2"
+            maxZoom={18}
+            maxNativeZoom={18}
+            opacity={1}
+            zIndex={2}
+          />
+        )}
 
 
         {/* ====================================================
-            ORIGINAL NDWI
+            NDWI
             ==================================================== */}
 
-        {tileUrls?.ndwi &&
-          layers.ndwi && (
-
-            <TileLayer
-
-              key="gee-ndwi"
-
-              url={tileUrls.ndwi}
-
-              maxZoom={18}
-
-              opacity={0.8}
-
-            />
-
-          )}
+        {tileUrls?.ndwi && layers.ndwi && (
+          <TileLayer
+            key={`gee-ndwi-${bbox?.join('-')}`}
+            url={tileUrls.ndwi}
+            maxZoom={18}
+            maxNativeZoom={18}
+            opacity={0.8}
+            zIndex={3}
+          />
+        )}
 
 
         {/* ====================================================
-            ORIGINAL WATER MASK
+            WATER MASK
             ==================================================== */}
 
-        {tileUrls?.water_mask &&
-          layers.water_mask && (
-
-            <TileLayer
-
-              key="gee-water-mask"
-
-              url={tileUrls.water_mask}
-
-              maxZoom={18}
-
-              opacity={0.7}
-
-            />
-
-          )}
+        {tileUrls?.water_mask && layers.water_mask && (
+          <TileLayer
+            key={`gee-water-mask-${bbox?.join('-')}`}
+            url={tileUrls.water_mask}
+            maxZoom={18}
+            maxNativeZoom={18}
+            opacity={0.7}
+            zIndex={4}
+          />
+        )}
 
 
         {/* ====================================================
-            NEW: SCAN RADIUS CIRCLE
+            SCAN RADIUS
+
+            IMPORTANT:
+            This is ONLY an overlay.
+            It does NOT hide the map.
             ==================================================== */}
 
-        {bbox &&
-          radiusKm &&
-          !loading && (
-
-            <ScanCircle
-
-              bbox={bbox}
-
-              radiusKm={radiusKm}
-
-            />
-
-          )}
+        {bbox && radiusKm && !loading && (
+          <ScanCircle
+            bbox={bbox}
+            radiusKm={radiusKm}
+          />
+        )}
 
 
         {/* ====================================================
-            ORIGINAL WATER BOUNDARIES
+            WATER BOUNDARIES
             ==================================================== */}
 
         {geojson &&
           layers.boundaries &&
-          Array.isArray(
-            geojson?.features
-          ) &&
+          Array.isArray(geojson?.features) &&
           geojson.features.length > 0 && (
 
             <GeoJSON
-
+              key={`water-boundaries-${bbox?.join('-')}`}
               data={geojson}
 
               style={() => ({
-
                 color: '#f43f5e',
-
                 weight: 1.8,
-
                 opacity: 0.95,
-
                 fillColor: '#f43f5e',
-
                 fillOpacity: 0.1,
-
               })}
 
-
-              onEachFeature={(
-                feature,
-                layer
-              ) => {
+              onEachFeature={(feature, layer) => {
 
                 const area =
                   feature.properties?.area_m2
@@ -503,120 +401,104 @@ export default function MapView({
                 if (!area) return
 
 
-                // ==================================================
+                // --------------------------------------------
                 // WATER BODY NUMBER
-                // ==================================================
+                // --------------------------------------------
 
-                const waterBodyId =
-                  feature.properties
-                    ?.water_body_id
-
-
-                const waterBodyName =
-                  feature.properties
-                    ?.water_body_name ||
-                  (
-                    waterBodyId
-                      ? `Water Body ${waterBodyId}`
-                      : 'Water Body'
-                  )
+                const index =
+                  geojson.features.indexOf(feature) + 1
 
 
-                // ==================================================
-                // ORIGINAL POPUP
-                // ==================================================
+                const waterBodyNumber =
+                  feature.properties?.water_body_id ||
+                  index
 
-                layer.bindPopup(`
 
-                  <div
-                    style="
-                      font-family:'Courier New',monospace;
-                      font-size:11px;
-                      color:#e2e8f0;
-                      background:#0f172a;
-                      padding:10px 12px;
-                      border-radius:8px;
-                      border:1px solid #334155;
-                      min-width:160px
-                    "
-                  >
+                // --------------------------------------------
+                // POPUP
+                // --------------------------------------------
 
+                layer.bindPopup(
+                  `
                     <div
                       style="
-                        color:#94a3b8;
-                        font-size:10px;
-                        text-transform:uppercase;
-                        letter-spacing:.08em;
-                        margin-bottom:6px
+                        font-family:'Courier New',monospace;
+                        font-size:11px;
+                        color:#e2e8f0;
+                        background:#0f172a;
+                        padding:10px 12px;
+                        border-radius:8px;
+                        border:1px solid #334155;
+                        min-width:160px;
                       "
                     >
-                      ${waterBodyName}
+
+                      <div
+                        style="
+                          color:#22d3ee;
+                          font-size:10px;
+                          text-transform:uppercase;
+                          letter-spacing:.08em;
+                          margin-bottom:6px;
+                        "
+                      >
+                        Water Body ${waterBodyNumber}
+                      </div>
+
+
+                      <div
+                        style="
+                          color:#f1f5f9;
+                          font-size:13px;
+                          font-weight:700;
+                          margin-bottom:4px;
+                        "
+                      >
+                        ${(area / 1e6).toFixed(4)} km²
+                      </div>
+
+
+                      <div
+                        style="
+                          color:#64748b;
+                        "
+                      >
+                        ${Math.round(area).toLocaleString()} m²
+                      </div>
+
                     </div>
+                  `,
+                  {
+                    className: 'dark-popup',
+                  }
+                )
 
 
-                    <div
-                      style="
-                        color:#f1f5f9;
-                        font-size:13px;
-                        font-weight:700;
-                        margin-bottom:4px
-                      "
-                    >
-                      ${(area / 1e6).toFixed(4)} km²
-                    </div>
-
-
-                    <div
-                      style="
-                        color:#64748b
-                      "
-                    >
-                      ${Math.round(area)
-                        .toLocaleString()} m²
-                    </div>
-
-                  </div>
-
-                `, {
-                  className:
-                    'dark-popup'
-                })
-
-
-                // ==================================================
-                // HOVER
-                // ==================================================
+                // --------------------------------------------
+                // HOVER EFFECT
+                // --------------------------------------------
 
                 layer.on({
 
-                  mouseover: e => {
+                  mouseover: (e) => {
 
                     e.target.setStyle({
-
                       fillOpacity: 0.3,
-
                       weight: 2.5,
-
-                      color: '#fb7185'
-
+                      color: '#fb7185',
                     })
 
                   },
 
-
-                  mouseout: e => {
+                  mouseout: (e) => {
 
                     e.target.setStyle({
-
                       fillOpacity: 0.1,
-
                       weight: 1.8,
-
-                      color: '#f43f5e'
-
+                      color: '#f43f5e',
                     })
 
-                  }
+                  },
 
                 })
 
@@ -628,102 +510,58 @@ export default function MapView({
 
 
         {/* ====================================================
-            FIT ORIGINAL BBOX
+            FIT SELECTED REGION
             ==================================================== */}
 
-        <FitBounds
-          bbox={bbox}
-        />
-
+        <FitBounds bbox={bbox} />
 
       </MapContainer>
 
 
       {/* ======================================================
-          ORIGINAL STYLES
+          MAP STYLES
           ====================================================== */}
 
       <style>{`
 
-        .dark-popup
-          .leaflet-popup-content-wrapper {
-
-          background:
-            transparent !important;
-
-          border:
-            none !important;
-
-          box-shadow:
-            0 8px 32px
-            rgba(0,0,0,.5) !important;
-
-          padding:
-            0 !important;
-
-          border-radius:
-            10px !important;
+        .dark-popup .leaflet-popup-content-wrapper {
+          background: transparent !important;
+          border: none !important;
+          box-shadow: 0 8px 32px rgba(0,0,0,.5) !important;
+          padding: 0 !important;
+          border-radius: 10px !important;
         }
 
-
-        .dark-popup
-          .leaflet-popup-content {
-
-          margin:
-            0 !important;
+        .dark-popup .leaflet-popup-content {
+          margin: 0 !important;
         }
 
-
-        .dark-popup
-          .leaflet-popup-tip-container {
-
-          display:
-            none;
+        .dark-popup .leaflet-popup-tip-container {
+          display: none;
         }
-
 
         .leaflet-control-zoom {
-
-          border:
-            1px solid
-            rgba(51,65,85,.8)
-            !important;
-
-          border-radius:
-            10px !important;
-
-          overflow:
-            hidden !important;
+          border: 1px solid rgba(51,65,85,.8) !important;
+          border-radius: 10px !important;
+          overflow: hidden !important;
         }
-
 
         .leaflet-control-zoom a {
-
-          background:
-            rgba(15,23,42,.9)
-            !important;
-
-          color:
-            #94a3b8
-            !important;
+          background: rgba(15,23,42,.9) !important;
+          color: #94a3b8 !important;
         }
 
-
         .leaflet-control-zoom a:hover {
+          background: rgba(30,41,59,.95) !important;
+          color: #e2e8f0 !important;
+        }
 
-          background:
-            rgba(30,41,59,.95)
-            !important;
-
-          color:
-            #e2e8f0
-            !important;
+        .leaflet-container {
+          background: #dbe3ea !important;
         }
 
       `}</style>
 
     </div>
-
   )
-
 }

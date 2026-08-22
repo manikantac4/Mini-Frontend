@@ -848,7 +848,7 @@ export default function Sidebar({
                 "
               >
 
-                {[5, 10, 20, 30].map(
+                {[50,100,150,200].map(
                   radius => (
 
                     <button
