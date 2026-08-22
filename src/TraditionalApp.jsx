@@ -30,16 +30,11 @@ export default function TraditionalApp({ onBack }) {
   // MAP / SCAN AREA
   // ============================================================
 
-  const [bbox, setBbox] = useState([
-    80.4,
-    16.2,
-    81.0,
-    16.8
-  ])
+ const [bbox,          setBbox]          = useState([80.4, 16.2, 81.0, 16.8])
+const [activeCity,    setActiveCity]    = useState('Vijayawada')
 
-  const [activeCity, setActiveCity] = useState(
-    'Vijayawada'
-  )
+// Scan radius in kilometres
+const [radiusKm,      setRadiusKm]      = useState(50)
 
 
   // ============================================================
@@ -183,9 +178,10 @@ export default function TraditionalApp({ onBack }) {
                 'application/json',
             },
 
-            body: JSON.stringify(
-              requestBody
-            ),
+           body: JSON.stringify({
+  ...params,
+  radius_km: radiusKm,
+}),
           }
         )
 
@@ -428,9 +424,12 @@ export default function TraditionalApp({ onBack }) {
         toggleLayer={toggleLayer}
 
         hasResult={!!tileUrls}
+          radiusKm={radiusKm}
+  setRadiusKm={setRadiusKm}
 
         onOpenReport={() =>
           setReportOpen(true)
+          
         }
 
         // ------------------------------------------------------
@@ -461,28 +460,14 @@ export default function TraditionalApp({ onBack }) {
       >
 
         <MapView
-
-          geojson={geojson}
-
-          tileUrls={tileUrls}
-
-          bbox={bbox}
-
-          loading={loading}
-
-          processingMsg={processingMsg}
-
-          layers={layers}
-
-          // ----------------------------------------------------
-          // Radius information
-          // ----------------------------------------------------
-
-          radiusKm={
-            selectedRadius
-          }
-
-        />
+  geojson={geojson}
+  tileUrls={tileUrls}
+  bbox={bbox}
+  loading={loading}
+  processingMsg={processingMsg}
+  layers={layers}
+  radiusKm={radiusKm}
+/>
 
 
         {/* ====================================================

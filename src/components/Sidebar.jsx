@@ -20,7 +20,7 @@ import {
 // Each city is now represented by a CENTER POINT.
 // The backend creates a circular scan area around this point.
 // ============================================================
-
+const RADIUS_OPTIONS = [30, 40, 50, 60, 70, 80, 90, 100]
 const CITIES = [
 
   {
@@ -840,50 +840,26 @@ export default function Sidebar({
               </div>
 
 
-              <div
-                className="
-                  grid
-                  grid-cols-4
-                  gap-1.5
-                "
-              >
-
-                {[50,100,150,200].map(
-                  radius => (
-
-                    <button
-                      key={radius}
-                      onClick={() =>
-                        setSelectedRadius(
-                          radius
-                        )
-                      }
-                      disabled={loading}
-                      className={`
-                        py-1.5
-                        rounded-lg
-                        text-[10px]
-                        font-semibold
-                        transition-all
-                        border
-
-                        ${
-                          selectedRadius === radius
-                            ? 'bg-cyan-500/20 text-cyan-300 border-cyan-700/60'
-                            : 'bg-slate-800/40 text-slate-500 border-slate-700/40 hover:text-slate-300'
-                        }
-
-                        disabled:opacity-40
-                        disabled:cursor-not-allowed
-                      `}
-                    >
-                      {radius} km
-                    </button>
-
-                  )
-                )}
-
-              </div>
+             <div className="grid grid-cols-4 gap-2">
+  {RADIUS_OPTIONS.map((radius) => (
+    <button
+      key={radius}
+      type="button"
+      onClick={() => setRadiusKm(radius)}
+      className={`
+        px-2 py-2 rounded-lg text-xs font-semibold
+        border transition-all
+        ${
+          radiusKm === radius
+            ? 'bg-cyan-500/15 text-cyan-400 border-cyan-500/60'
+            : 'bg-slate-900/60 text-slate-400 border-slate-700/60 hover:text-white hover:border-slate-600'
+        }
+      `}
+    >
+      {radius} km
+    </button>
+  ))}
+</div>
 
             </div>
 
