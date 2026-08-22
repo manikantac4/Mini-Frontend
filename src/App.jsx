@@ -3,12 +3,12 @@ import TraditionalApp from './TraditionalApp'
 import AIApp from './AIApp'
 
 // Vite-friendly image imports. Place the two files at:
-//   src/assets/background.jpg
-//   src/assets/mobilebackground.jpg
+//   src/assets/background.jpeg
+//   src/assets/mobilebackground.jpeg
 // (adjust the relative path below if App.jsx lives somewhere else, e.g.
 // src/components/App.jsx would need '../assets/background.jpg')
-import backgroundImg from './assets/background.jpg'
-import mobileBackgroundImg from './assets/mobilebackground.jpg'
+import backgroundImg from './assets/background.jpeg'
+import mobileBackgroundImg from './assets/mobilebackground.jpeg'
 
 const FONT_STACK =
   "'Product Sans', 'Google Sans', 'Söhne', ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
