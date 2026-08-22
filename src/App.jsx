@@ -7,7 +7,7 @@ import AIApp from './AIApp'
 //   src/assets/mobilebackground.jpeg
 // (adjust the relative path below if App.jsx lives somewhere else, e.g.
 // src/components/App.jsx would need '../assets/background.jpg')
-import backgroundImg from './assets/background.jpeg'
+import backgroundImg from './assets/backgorund.jpg';
 import mobileBackgroundImg from './assets/mobilebackground.jpeg'
 
 const FONT_STACK =
