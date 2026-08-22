@@ -7,8 +7,8 @@ import AIApp from './AIApp'
 //   src/assets/mobilebackground.jpeg
 // (adjust the relative path below if App.jsx lives somewhere else, e.g.
 // src/components/App.jsx would need '../assets/background.jpg')
-import backgroundImg from './assets/backgorund.jpg';
-import mobileBackgroundImg from './assets/mobilebackground.jpeg'
+import backgroundImg from './assets/background.jpg';
+import mobileBackgroundImg from './assets/mobilebackgorund.jpeg'
 
 const FONT_STACK =
   "'Product Sans', 'Google Sans', 'Söhne', ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
