@@ -7,7 +7,6 @@ import {
   useMap,
 } from 'react-leaflet'
 
-
 // ============================================================
 // FIT MAP TO SELECTED BBOX
 // ============================================================
@@ -34,13 +33,11 @@ function FitBounds({ bbox }) {
   return null
 }
 
-
 // ============================================================
 // SCAN RADIUS CIRCLE
 // ============================================================
 
 function ScanCircle({ bbox, radiusKm }) {
-
   if (
     !bbox ||
     !Array.isArray(bbox) ||
@@ -75,7 +72,6 @@ function ScanCircle({ bbox, radiusKm }) {
   )
 }
 
-
 // ============================================================
 // MAIN MAP
 // ============================================================
@@ -89,7 +85,6 @@ export default function MapView({
   layers,
   radiusKm,
 }) {
-
   return (
     <div
       style={{
@@ -98,7 +93,6 @@ export default function MapView({
       }}
       className="relative"
     >
-
       {/* ======================================================
           LOADING OVERLAY
           ====================================================== */}
@@ -116,9 +110,7 @@ export default function MapView({
             gap-4
           "
         >
-
           <div className="relative w-14 h-14">
-
             <div
               className="
                 w-14 h-14
@@ -160,11 +152,9 @@ export default function MapView({
                 animationDirection: 'reverse',
               }}
             />
-
           </div>
 
           <div className="text-center">
-
             <p className="text-white text-sm font-semibold mb-1">
               Analysing Satellite Data
             </p>
@@ -172,11 +162,9 @@ export default function MapView({
             <p className="text-slate-400 text-xs max-w-[240px] min-h-[16px]">
               {processingMsg}
             </p>
-
           </div>
 
           <div className="flex gap-1.5">
-
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
@@ -191,12 +179,9 @@ export default function MapView({
                 }}
               />
             ))}
-
           </div>
-
         </div>
       )}
-
 
       {/* ======================================================
           EMPTY STATE
@@ -213,7 +198,6 @@ export default function MapView({
             pointer-events-none
           "
         >
-
           <div
             className="
               px-4 py-2
@@ -228,10 +212,8 @@ export default function MapView({
           >
             Select a city → click Detect Water
           </div>
-
         </div>
       )}
-
 
       {/* ======================================================
           RESULT BADGE
@@ -247,7 +229,6 @@ export default function MapView({
             pointer-events-none
           "
         >
-
           <div
             className="
               px-3 py-2
@@ -263,17 +244,15 @@ export default function MapView({
           >
             ✓ {geojson?.features?.length || 0} polygons
           </div>
-
         </div>
       )}
-
 
       {/* ======================================================
           LEAFLET MAP
           ====================================================== */}
 
       <MapContainer
-        center={[16.5062, 80.6480]}
+        center={[16.5062, 80.648]}
         zoom={11}
         style={{
           width: '100%',
@@ -283,14 +262,8 @@ export default function MapView({
         zoomControl={true}
         scrollWheelZoom={true}
       >
-
-
         {/* ====================================================
-            IMPORTANT:
-            ORIGINAL ESRI SATELLITE BASE MAP
-
-            Keep this URL as ONE LINE.
-            This is what makes the entire map visible.
+            ESRI SATELLITE BASE MAP
             ==================================================== */}
 
         <TileLayer
@@ -302,16 +275,11 @@ export default function MapView({
           zIndex={1}
         />
 
-
         {/* ====================================================
             GEE SENTINEL-2 SATELLITE
-
-            This sits ON TOP of Esri.
-            Outside the GEE ROI, the transparent area allows
-            the Esri base map underneath to remain visible.
             ==================================================== */}
 
-        {tileUrls?.satellite && layers.satellite && (
+        {tileUrls?.satellite && layers?.satellite && (
           <TileLayer
             key={`gee-satellite-${bbox?.join('-')}`}
             url={tileUrls.satellite}
@@ -323,16 +291,11 @@ export default function MapView({
           />
         )}
 
-
         {/* ====================================================
-            FALSE COLOR COMPOSITE (FCC)
-
-            NIR-Red-Green visual analysis layer. Purely a display
-            aid — it does not feed the water classification, which
-            is computed server-side from the spectral indices.
+            FALSE COLOR COMPOSITE
             ==================================================== */}
 
-        {tileUrls?.fcc && layers.fcc && (
+        {tileUrls?.fcc && layers?.fcc && (
           <TileLayer
             key={`gee-fcc-${bbox?.join('-')}`}
             url={tileUrls.fcc}
@@ -343,12 +306,11 @@ export default function MapView({
           />
         )}
 
-
         {/* ====================================================
             NDWI
             ==================================================== */}
 
-        {tileUrls?.ndwi && layers.ndwi && (
+        {tileUrls?.ndwi && layers?.ndwi && (
           <TileLayer
             key={`gee-ndwi-${bbox?.join('-')}`}
             url={tileUrls.ndwi}
@@ -359,12 +321,11 @@ export default function MapView({
           />
         )}
 
-
         {/* ====================================================
             WATER MASK
             ==================================================== */}
 
-        {tileUrls?.water_mask && layers.water_mask && (
+        {tileUrls?.water_mask && layers?.water_mask && (
           <TileLayer
             key={`gee-water-mask-${bbox?.join('-')}`}
             url={tileUrls.water_mask}
@@ -375,13 +336,8 @@ export default function MapView({
           />
         )}
 
-
         {/* ====================================================
             SCAN RADIUS
-
-            IMPORTANT:
-            This is ONLY an overlay.
-            It does NOT hide the map.
             ==================================================== */}
 
         {bbox && radiusKm && !loading && (
@@ -391,20 +347,17 @@ export default function MapView({
           />
         )}
 
-
         {/* ====================================================
             WATER BOUNDARIES
             ==================================================== */}
 
         {geojson &&
-          layers.boundaries &&
+          layers?.boundaries &&
           Array.isArray(geojson?.features) &&
           geojson.features.length > 0 && (
-
             <GeoJSON
               key={`water-boundaries-${bbox?.join('-')}`}
               data={geojson}
-
               style={() => ({
                 color: '#f43f5e',
                 weight: 1.8,
@@ -412,14 +365,10 @@ export default function MapView({
                 fillColor: '#f43f5e',
                 fillOpacity: 0.1,
               })}
-
               onEachFeature={(feature, layer) => {
-
-                const area =
-                  feature.properties?.area_m2
+                const area = feature.properties?.area_m2
 
                 if (!area) return
-
 
                 // --------------------------------------------
                 // WATER BODY NUMBER
@@ -428,11 +377,8 @@ export default function MapView({
                 const index =
                   geojson.features.indexOf(feature) + 1
 
-
                 const waterBodyNumber =
-                  feature.properties?.water_body_id ||
-                  index
-
+                  feature.properties?.water_body_id || index
 
                 // --------------------------------------------
                 // POPUP
@@ -452,7 +398,6 @@ export default function MapView({
                         min-width:160px;
                       "
                     >
-
                       <div
                         style="
                           color:#22d3ee;
@@ -465,7 +410,6 @@ export default function MapView({
                         Water Body ${waterBodyNumber}
                       </div>
 
-
                       <div
                         style="
                           color:#f1f5f9;
@@ -477,7 +421,6 @@ export default function MapView({
                         ${(area / 1e6).toFixed(4)} km²
                       </div>
 
-
                       <div
                         style="
                           color:#64748b;
@@ -485,7 +428,6 @@ export default function MapView({
                       >
                         ${Math.round(area).toLocaleString()} m²
                       </div>
-
                     </div>
                   `,
                   {
@@ -493,57 +435,43 @@ export default function MapView({
                   }
                 )
 
-
                 // --------------------------------------------
                 // HOVER EFFECT
                 // --------------------------------------------
 
                 layer.on({
-
                   mouseover: (e) => {
-
                     e.target.setStyle({
                       fillOpacity: 0.3,
                       weight: 2.5,
                       color: '#fb7185',
                     })
-
                   },
 
                   mouseout: (e) => {
-
                     e.target.setStyle({
                       fillOpacity: 0.1,
                       weight: 1.8,
                       color: '#f43f5e',
                     })
-
                   },
-
                 })
-
               }}
-
             />
-
           )}
-
 
         {/* ====================================================
             FIT SELECTED REGION
             ==================================================== */}
 
         <FitBounds bbox={bbox} />
-
       </MapContainer>
-
 
       {/* ======================================================
           MAP STYLES
           ====================================================== */}
 
       <style>{`
-
         .dark-popup .leaflet-popup-content-wrapper {
           background: transparent !important;
           border: none !important;
@@ -579,9 +507,7 @@ export default function MapView({
         .leaflet-container {
           background: #dbe3ea !important;
         }
-
       `}</style>
-
     </div>
   )
 }
