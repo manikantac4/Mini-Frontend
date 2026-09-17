@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import TraditionalApp from './TraditionalApp'
 import AIApp from './AIApp'
+import ViewportApp from './ViewportApp'
 
 // Vite-friendly image imports. Place the two files at:
 //   src/assets/background.jpeg
@@ -14,10 +14,10 @@ const FONT_STACK =
   "'Product Sans', 'Google Sans', 'Söhne', ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
 
 export default function App() {
-  const [mode, setMode] = useState(null) // null | 'traditional' | 'ai'
+  const [mode, setMode] = useState(null) // null | 'ai' | 'viewport'
 
-  if (mode === 'traditional') return <TraditionalApp onBack={() => setMode(null)} />
-  if (mode === 'ai')          return <AIApp          onBack={() => setMode(null)} />
+  if (mode === 'ai')       return <AIApp       onBack={() => setMode(null)} />
+  if (mode === 'viewport') return <ViewportApp onBack={() => setMode(null)} />
 
   return (
     <div
@@ -109,70 +109,7 @@ export default function App() {
           </div>
 
           {/* Method cards */}
-          <div className="flex flex-col sm:flex-row gap-5 w-full max-w-xl">
-
-            {/* Traditional card */}
-            <button
-              onClick={() => setMode('traditional')}
-              className="flex-1 group relative text-left p-6 rounded-2xl
-                         bg-slate-900/70 backdrop-blur-sm border border-slate-700/60
-                         hover:border-cyan-600/60 hover:bg-slate-800/80
-                         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70
-                         transition-all duration-300 active:scale-[0.98]
-                         shadow-lg overflow-hidden"
-            >
-              <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100
-                              transition-opacity duration-300 pointer-events-none"
-                   style={{ background: 'radial-gradient(ellipse at top left, rgba(6,182,212,0.08) 0%, transparent 70%)' }}/>
-
-              <div className="w-10 h-10 rounded-xl bg-cyan-950/60 border border-cyan-800/60
-                              flex items-center justify-center mb-4">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-                     stroke="#22d3ee" strokeWidth="1.6" strokeLinecap="round">
-                  <rect x="3" y="3" width="18" height="18" rx="2"/>
-                  <path d="M9 9h6M9 12h6M9 15h4"/>
-                </svg>
-              </div>
-
-              <p className="text-[11px] font-semibold text-cyan-400 uppercase tracking-widest mb-1.5">
-                Traditional Method
-              </p>
-              <h2 className="text-[16px] font-bold text-white mb-2 leading-tight">
-                NDWI + MNDWI
-              </h2>
-              <p className="text-[12px] text-slate-400 leading-relaxed mb-5">
-                Index-based water detection using Sentinel-2 spectral bands via Google Earth Engine.
-              </p>
-
-              <div className="flex flex-wrap gap-1.5 mb-5">
-                {['NDWI', 'MNDWI', 'Sentinel-2', 'GEE'].map(t => (
-                  <span key={t}
-                    className="px-2 py-0.5 text-[9px] font-mono font-semibold rounded-md
-                               border text-cyan-400 bg-cyan-950/40 border-cyan-800/50">
-                    {t}
-                  </span>
-                ))}
-              </div>
-
-              <div className="flex items-center gap-1.5 text-[11px] font-semibold
-                              text-slate-400 group-hover:text-cyan-300 transition-colors">
-                <span>Launch</span>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" strokeWidth="2" strokeLinecap="round"
-                     className="group-hover:translate-x-0.5 transition-transform">
-                  <path d="M5 12h14M12 5l7 7-7 7"/>
-                </svg>
-              </div>
-            </button>
-
-            {/* Divider */}
-            <div className="hidden sm:flex flex-col items-center justify-center gap-2 shrink-0">
-              <div className="w-px flex-1 bg-slate-700/60"/>
-              <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider px-1 py-1">
-                or
-              </span>
-              <div className="w-px flex-1 bg-slate-700/60"/>
-            </div>
+          <div className="flex flex-col sm:flex-row gap-5 w-full max-w-4xl">
 
             {/* AI card */}
             <button
@@ -228,6 +165,77 @@ export default function App() {
 
               <div className="flex items-center gap-1.5 text-[11px] font-semibold
                               text-slate-400 group-hover:text-violet-300 transition-colors">
+                <span>Launch</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                     className="group-hover:translate-x-0.5 transition-transform">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </div>
+            </button>
+
+            {/* Divider */}
+            <div className="hidden sm:flex flex-col items-center justify-center gap-2 shrink-0">
+              <div className="w-px flex-1 bg-slate-700/60"/>
+              <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider px-1 py-1">
+                or
+              </span>
+              <div className="w-px flex-1 bg-slate-700/60"/>
+            </div>
+
+            {/* Live viewport dashboard card */}
+            <button
+              onClick={() => setMode('viewport')}
+              className="flex-1 group relative text-left p-6 rounded-2xl
+                         bg-slate-900/70 backdrop-blur-sm border border-slate-700/60
+                         hover:border-emerald-600/60 hover:bg-slate-800/80
+                         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70
+                         transition-all duration-300 active:scale-[0.98]
+                         shadow-lg overflow-hidden"
+            >
+              <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100
+                              transition-opacity duration-300 pointer-events-none"
+                   style={{ background: 'radial-gradient(ellipse at top left, rgba(16,185,129,0.1) 0%, transparent 70%)' }}/>
+
+              <div className="absolute top-4 right-4 px-2 py-0.5 rounded-full text-[9px]
+                              font-bold text-emerald-300 bg-emerald-950/70 border border-emerald-700/60
+                              uppercase tracking-widest">
+                New
+              </div>
+
+              <div className="w-10 h-10 rounded-xl bg-emerald-950/60 border border-emerald-800/60
+                              flex items-center justify-center mb-4">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                     stroke="#34d399" strokeWidth="1.6" strokeLinecap="round">
+                  <path d="M3 12 C5 8, 8 6, 12 6 C16 6, 19 8, 21 12"/>
+                  <path d="M3 16 C5 12, 8 10, 12 10 C16 10, 19 12, 21 16"/>
+                  <path d="M3 20 C5 16, 8 14, 12 14 C16 14, 19 16, 21 20"/>
+                </svg>
+              </div>
+
+              <p className="text-[11px] font-semibold text-emerald-400 uppercase tracking-widest mb-1.5">
+                Index-Based Method
+              </p>
+              <h2 className="text-[16px] font-bold text-white mb-2 leading-tight">
+                NDWI + MNDWI Analysis
+              </h2>
+              <p className="text-[12px] text-slate-400 leading-relaxed mb-5">
+                Index-based water detection (NDWI, MNDWI, AWEI) on Sentinel-2 imagery via Google
+                Earth Engine, with a full-screen dashboard, GeoJSON viewer, and image/PDF report downloads.
+              </p>
+
+              <div className="flex flex-wrap gap-1.5 mb-5">
+                {['NDWI', 'MNDWI', 'Sentinel-2', 'GeoJSON', 'PDF report'].map(t => (
+                  <span key={t}
+                    className="px-2 py-0.5 text-[9px] font-mono font-semibold rounded-md
+                               border text-emerald-400 bg-emerald-950/40 border-emerald-800/50">
+                    {t}
+                  </span>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-1.5 text-[11px] font-semibold
+                              text-slate-400 group-hover:text-emerald-300 transition-colors">
                 <span>Launch</span>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" strokeWidth="2" strokeLinecap="round"

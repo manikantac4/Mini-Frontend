@@ -269,12 +269,12 @@ export default function AIReportPanel({ open, onClose, result, cityName }) {
                 <div className="bg-slate-900/60 border border-slate-800/50
                                 rounded-xl p-3.5 space-y-2">
                   {[
-                    ['Architecture', 'U-Net'],
-                    ['Encoder',      'ResNet-34'],
-                    ['Framework',    'PyTorch'],
-                    ['Input size',   '512×512 px'],
+                    ['Architecture', 'U-Net (Base-32)'],
+                    ['Trainable params', '7,766,497'],
+                    ['Input',        '15 channels · 256×256 px'],
                     ['Classes',      'Water / Non-water'],
-                    ['Endpoint',     'localhost:5000/ai/detect-water'],
+                    ['Threshold',    `${result?.model_threshold ?? 0.5}`],
+                    ['Endpoint',     'POST /analysis'],
                   ].map(([k, v]) => (
                     <div key={k} className="flex justify-between items-center
                                             border-b border-slate-800/40 pb-2
@@ -294,7 +294,7 @@ export default function AIReportPanel({ open, onClose, result, cityName }) {
 
         {/* ── Footer ── */}
         {(stats || geoStats) && (
-          <div className="p-4 border-t border-slate-800/60 shrink-0">
+          <div className="p-4 border-t border-slate-800/60 shrink-0 space-y-2">
             <button onClick={handleDownload}
               className="w-full flex items-center justify-center gap-2
                          py-2.5 rounded-xl text-xs font-semibold
@@ -309,6 +309,24 @@ export default function AIReportPanel({ open, onClose, result, cityName }) {
               </svg>
               Export GeoJSON
             </button>
+            {result?.downloads && (
+              <div className="grid grid-cols-2 gap-2">
+                <a href={result.downloads.ranked_csv} target="_blank" rel="noreferrer"
+                   className="flex items-center justify-center gap-1.5 py-2 rounded-lg
+                              text-[10.5px] font-semibold text-slate-400 bg-slate-900/60
+                              border border-slate-800/50 hover:text-white hover:border-violet-800/50
+                              transition-all">
+                  Ranked CSV
+                </a>
+                <a href={result.downloads.statistics_csv} target="_blank" rel="noreferrer"
+                   className="flex items-center justify-center gap-1.5 py-2 rounded-lg
+                              text-[10.5px] font-semibold text-slate-400 bg-slate-900/60
+                              border border-slate-800/50 hover:text-white hover:border-violet-800/50
+                              transition-all">
+                  Statistics CSV
+                </a>
+              </div>
+            )}
           </div>
         )}
       </div>

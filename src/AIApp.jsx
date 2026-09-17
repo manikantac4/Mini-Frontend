@@ -3,9 +3,7 @@ import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet'
 import { useEffect } from 'react'
 import AISidebar    from './AISidebar'
 import AIReportPanel from './AIReportPanel'
-
-// ── Local U-Net backend endpoint ──────────────────────────────
-const AI_BACKEND = 'http://127.0.0.1:5001/ai/detect-water'
+import { runAiDetection } from './lib/aiApi'
 
 const AI_MESSAGES = [
   'Loading satellite tiles...',
@@ -121,18 +119,34 @@ function AIMapView({ geojson, bbox, loading, processingMsg }) {
               fillOpacity: 0.15,
             })}
             onEachFeature={(feature, layer) => {
-              const area = feature.properties?.area_m2
+              const p = feature.properties || {}
+              const area = p.area_m2
               if (!area) return
+              const flags = Array.isArray(p.quality_flags) ? p.quality_flags : []
+              const flagsHtml = flags.length
+                ? `<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;">
+                     ${flags.map(f => `<span style="font-size:9px;padding:2px 6px;border-radius:999px;
+                       background:#451a03;color:#fbbf24;border:1px solid #78350f;">${f.replace(/_/g,' ')}</span>`).join('')}
+                   </div>`
+                : ''
               layer.bindPopup(`
                 <div style="font-family:'Courier New',monospace;font-size:11px;
                             color:#e2e8f0;background:#0f172a;padding:10px 12px;
-                            border-radius:8px;border:1px solid #334155;min-width:160px">
-                  <div style="color:#94a3b8;font-size:10px;text-transform:uppercase;
-                              letter-spacing:.08em;margin-bottom:6px">Water Body · U-Net</div>
+                            border-radius:8px;border:1px solid #334155;min-width:180px">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                    <span style="color:#94a3b8;font-size:10px;text-transform:uppercase;letter-spacing:.08em;">
+                      ${p.id || 'Water Body'}
+                    </span>
+                    ${p.rank ? `<span style="color:#a78bfa;font-size:10px;font-weight:700;">Rank #${p.rank}</span>` : ''}
+                  </div>
                   <div style="color:#c4b5fd;font-size:13px;font-weight:700;margin-bottom:4px">
                     ${(area / 1e6).toFixed(4)} km²
                   </div>
                   <div style="color:#64748b">${Math.round(area).toLocaleString()} m²</div>
+                  ${typeof p.mean_probability === 'number'
+                    ? `<div style="color:#64748b;margin-top:4px;">model probability: <span style="color:#c4b5fd">${(p.mean_probability*100).toFixed(0)}%</span></div>`
+                    : ''}
+                  ${flagsHtml}
                 </div>
               `, { className: 'dark-popup' })
               layer.on({
@@ -198,36 +212,18 @@ export default function AIApp({ onBack }) {
     }, 3500)
 
     try {
-      const res  = await fetch(AI_BACKEND, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(params),
-      })
+      const data = await runAiDetection(params)
 
-      if (!res.ok) {
-        throw new Error(`Server returned ${res.status}`)
-      }
+      // Adapter shape: { success, place, statistics, geojson, water_bodies, summary, downloads, ... }
+      setResult(data)
+      setGeojson(data.geojson || null)
 
-      const data = await res.json()
+      // Update bbox from result if available, else keep current
+      if (params.bbox) setBbox(params.bbox)
 
-      if (!data.success) {
-        setError(data.error || 'AI detection failed')
-      } else {
-        // Backend shape: { success, place, statistics, geojson }
-        setResult(data)
-        setGeojson(data.geojson || null)
-
-        // Update bbox from result if available, else keep current
-        if (params.bbox) setBbox(params.bbox)
-
-        setTimeout(() => setReportOpen(true), 600)
-      }
+      setTimeout(() => setReportOpen(true), 600)
     } catch (err) {
-      setError(
-        err.message.includes('fetch')
-          ? 'Cannot reach AI backend — make sure Flask is running on localhost:5000'
-          : err.message
-      )
+      setError(err.message || 'AI detection failed')
     } finally {
       clearInterval(interval)
       setLoading(false)

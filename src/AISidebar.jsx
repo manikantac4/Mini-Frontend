@@ -172,7 +172,7 @@ export default function AISidebar({
         <div className="flex gap-1.5 mt-3">
           {[
             { label: 'U-Net',     color: 'text-violet-400 bg-violet-950/50 border-violet-900/50' },
-            { label: 'ResNet-34', color: 'text-indigo-400 bg-indigo-950/50 border-indigo-900/50' },
+            { label: 'Base-32',   color: 'text-indigo-400 bg-indigo-950/50 border-indigo-900/50' },
             { label: 'OSM',       color: 'text-slate-400  bg-slate-800/50  border-slate-700/40'  },
           ].map(b => (
             <span key={b.label}
@@ -411,12 +411,12 @@ export default function AISidebar({
                            tracking-widest mb-3">Architecture</p>
             <div className="space-y-2">
               {[
-                ['Model',      'U-Net'],
-                ['Encoder',    'ResNet-34'],
+                ['Model',      'U-Net (Base-32)'],
+                ['Parameters', '7,766,497'],
                 ['Framework',  'PyTorch'],
-                ['Input size', '512×512 tiles'],
+                ['Input',      '15 channels · 256×256'],
                 ['Classes',    'Water / Non-water'],
-                ['Backend',    'localhost:5000'],
+                ['Backend',    'localhost:8001'],
               ].map(([k, v]) => (
                 <div key={k} className="flex justify-between items-center
                                         border-b border-slate-800/40 pb-2
@@ -431,10 +431,11 @@ export default function AISidebar({
             <p className="text-[10px] font-semibold text-violet-400 uppercase
                            tracking-widest mb-2">How It Works</p>
             <p className="text-[11px] text-slate-500 leading-relaxed">
-              The U-Net model tiles the selected region, runs semantic
-              segmentation on each 512×512 patch, stitches the results
-              together, then vectorizes pixel masks into GeoJSON polygons
-              with area statistics.
+              The U-Net model scans the selected region in overlapping
+              256×256 patches (15 spectral/index channels per patch), runs
+              frozen semantic segmentation on each, fuses overlapping
+              predictions, then vectorizes the water mask into ranked,
+              measured GeoJSON polygons.
             </p>
           </div>
         </div>
